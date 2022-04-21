@@ -55,7 +55,7 @@ class ApplicationController extends Controller
     foreach ($directories as $key => $dir) {
       array_push($explorer, [
           'name' => $dir['name'],
-          'children' => DB::select("SELECT id, name FROM subdirectory WHERE directory_id=".$dir['id']."" ),
+          'children' => DB::select("SELECT id, name, code FROM subdirectory WHERE directory_id=".$dir['id']."" ),
         ]);
      }
  
@@ -65,4 +65,18 @@ class ApplicationController extends Controller
 
 
  }
+
+    public function getReportsNames(Request $request){
+
+        $code = trim($request->code);
+
+          $result = DB::select("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '%".$code. "%'"); 
+          $tables = array_column($result, 'table_name');
+          
+          return response()->json([
+          'tables' => $tables,
+        ], 200);
+
+    }
+
 }

@@ -7,7 +7,7 @@
       v-model="selectedTable"
       :items="tables"
       :server-items-length="totalDatas"
-      label="Choisir une table"
+      label="Choisir un rapport"
       @change="fetchHeaders"
       clearable
     ></v-select>
@@ -69,7 +69,7 @@
      :csv-title="selectedTable"
 >
 
-     <v-btn color="success" dark class="mb-2 mx-2">
+     <v-btn color="secondary" dark class="mb-2 mx-2">
           Exporter en csv <i class="mdi mdi-export-variant" aria-hidden="true"></i>
      </v-btn>
 </vue-json-to-csv>
@@ -198,6 +198,11 @@ export default {
     FilterDialog
   },
 
+  props: {
+     tablesNames : Array,
+     reportsView: Boolean
+  },
+
    data() {
     return {
        icons: {
@@ -217,7 +222,6 @@ export default {
       userList: data,
       columnNames : [],
       status: '',
-
       editedIndex: -1,
       editedItem:{},
       defaultItem:{},
@@ -230,23 +234,38 @@ export default {
   },
 
   computed: {
+
       formTitle () {
         return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
       },
+
     },
 
     watch: {
+
       dialog (val) {
         val || this.close()
       },
       dialogDelete (val) {
         val || this.closeDelete()
       },
+
+      tables(){
+        if (this.tablesNames.length != 0 ) {
+          console.log('ene action',this.tablesNames );
+          return this.tablesNames
+        }
+        this.fectchAllTablesNames
+      }
+
     },
 
 
   methods: {
+
+
     fetchHeaders() {
+
         axios.get('/api/columnsnames', {
             params: {
             tableName: this.selectedTable
@@ -266,8 +285,6 @@ export default {
             sortable: false
           });
 
-
-
          console.log('fetchHeaders :', this.tableHeader);
 
         })
@@ -278,7 +295,6 @@ export default {
     filter(datas){
 
        console.log('updateDatas en action : ', datas);
-
        this.tableDatas  =  datas.slice()
 
     },
@@ -289,11 +305,12 @@ export default {
           .then((response) => {
             console.log('fectchAllTablesNames : ', response.data.tables)
             this.tables = response.data.tables
-
      })
+
     },
 
     fetchTablesData(){
+
         axios.get('api/tabledatas',{
               params :{
                 tableName : this.selectedTable,
@@ -336,6 +353,7 @@ export default {
         this.editedItem = Object.assign({}, item)
          console.log('log de item', this.editedItem);
         this.dialog = true
+
       },
 
 
@@ -387,7 +405,7 @@ export default {
   },
 
     created(){
-        this.fectchAllTablesNames()
+      this.fectchAllTablesNames()
 
   }
 

@@ -3,7 +3,9 @@
       <v-col cols="12">
       <dashboard-datatable></dashboard-datatable>
     </v-col>
-    <v-col
+
+
+   <!--  <v-col
       cols="12"
       md="4"
     >
@@ -104,7 +106,7 @@
       md="8"
     >
       <dashboard-card-deposit-and-withdraw></dashboard-card-deposit-and-withdraw>
-    </v-col>
+    </v-col> -->
 
   </v-row>
 </template>

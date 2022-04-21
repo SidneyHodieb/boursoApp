@@ -68,7 +68,7 @@
      :json-data="tableDatas"
      csv-title="new_extraction"
 >
-     <v-btn color="success" dark class="mb-2 mx-2">
+     <v-btn color="secondary" dark class="mb-2 mx-2">
           Exporter en csv <i class="mdi mdi-export-variant" aria-hidden="true"></i>
      </v-btn>
 </vue-json-to-csv>

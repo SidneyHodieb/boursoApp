@@ -25,7 +25,6 @@ class CustomersController extends Controller
     {
 
         $customers = Customers::find(424);
-
         return $customers;
     }
 

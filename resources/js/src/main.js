@@ -6,6 +6,21 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import store from './store'
 import axios from 'axios'
+axios.interceptors.response.use((response) => {
+  if(response.status === 401) {
+       console("You are not authorized");
+  }
+  return response;
+}, (error) => {
+
+
+  if (error.response && error.response.data) {
+      return Promise.reject(error.response.data);
+  }
+  return Promise.reject(error.message);
+});
+
+
 /* import mixin from "../src/Mixins/default.js";
  */
 

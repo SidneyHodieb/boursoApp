@@ -1,29 +1,31 @@
 <template>
   <v-card>
     <v-card-title class="indigo white--text text-h5">
-     Explorateur de rapports
+     Explorateur de rapports {{selected}} {{active}}
     </v-card-title>
     <v-row
       class="pa-4"
       justify="space-between"
     >
       <v-col cols="5">
+
         <v-treeview
           :active.sync="active"
           :items="dir"
-          :load-children="fetchUsers"
+          item-key="code"
+          :load-children="fetchReports"
           :open.sync="open"
           activatable
           color="warning"
           open-on-click
           transition
-
         >
-          <template v-slot:prepend="{ item }">
-            <v-icon v-if="!item.children">
-              mdi-account
-            </v-icon>
-          </template>
+        <template v-slot:prepend="{ open }">
+      <v-icon>
+        {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+      </v-icon>
+
+    </template>
         </v-treeview>
       </v-col>
 
@@ -38,18 +40,16 @@
             class="text-h6 grey--text text--lighten-1 font-weight-light"
             style="align-self: center;"
           >
-            Select a User
+           <DataTable  v-if="dataLoaded" @reportsView='reportsView' @tablesNames = "tablesNames" />
           </div>
           <v-card
             v-else
-            :key="selected.id"
             class="pt-6 mx-auto"
             flat
             max-width="400"
           >
             <v-card-text>
               <v-avatar
-                v-if="avatar"
                 size="88"
               >
                 <v-img
@@ -57,51 +57,9 @@
                   class="mb-6"
                 ></v-img>
               </v-avatar>
-              <h3 class="text-h5 mb-2">
-                {{ selected.name }}
-              </h3>
-              <div class="blue--text mb-2">
-                {{ selected.email }}
-              </div>
-              <div class="blue--text subheading font-weight-bold">
-                {{ selected.username }}
-              </div>
+                <DataTable @tablesNames = "tablesNames" />
             </v-card-text>
             <v-divider></v-divider>
-            <v-row
-              class="text-left"
-              tag="v-card-text"
-            >
-              <v-col
-                class="text-right mr-4 mb-2"
-                tag="strong"
-                cols="5"
-              >
-                Company:
-              </v-col>
-              <v-col>{{ selected.company.name }}</v-col>
-              <v-col
-                class="text-right mr-4 mb-2"
-                tag="strong"
-                cols="5"
-              >
-                Website:
-              </v-col>
-              <v-col>
-                <a
-                  :href="`//${selected.website}`"
-                  target="_blank"
-                >{{ selected.website }}</a>
-              </v-col>
-              <v-col
-                class="text-right mr-4 mb-2"
-                tag="strong"
-                cols="5"
-              >
-                Phone:
-              </v-col>
-              <v-col>{{ selected.phone }}</v-col>
-            </v-row>
           </v-card>
         </v-scroll-y-transition>
       </v-col>
@@ -111,6 +69,19 @@
 
 
 <script>
+import DataTable from '../dashboard/DashboardDatatable.vue'
+import {
+  mdiHomeOutline,
+  mdiDatabaseSearch,
+  mdiEyeOutline,
+  mdiCreditCardOutline,
+  mdiTable,
+  mdiFileOutline,
+  mdiFormSelect,
+  mdiAccountCogOutline,
+  mdiFolderOpen,
+  mdiFolder,
+} from '@mdi/js'
 import axios from 'axios'
   const avatars = [
     '?accessoriesType=Blank&avatarStyle=Circle&clotheColor=PastelGreen&clotheType=ShirtScoopNeck&eyeType=Wink&eyebrowType=UnibrowNatural&facialHairColor=Black&facialHairType=MoustacheMagnum&hairColor=Platinum&mouthType=Concerned&skinColor=Tanned&topType=Turban',
@@ -120,15 +91,43 @@ import axios from 'axios'
     '?accessoriesType=Kurt&avatarStyle=Circle&clotheColor=Gray01&clotheType=BlazerShirt&eyeType=Surprised&eyebrowType=Default&facialHairColor=Red&facialHairType=Blank&graphicType=Selena&hairColor=Red&hatColor=Blue02&mouthType=Twinkle&skinColor=Pale&topType=LongHairCurly',
   ]
 
+
+
   const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 
   export default {
+
+    components : {
+      DataTable
+    },
+
+     setup() {
+    return {
+      icons: {
+        mdiHomeOutline,
+        mdiDatabaseSearch,
+        mdiEyeOutline,
+        mdiCreditCardOutline,
+        mdiTable,
+        mdiFileOutline,
+        mdiFormSelect,
+        mdiAccountCogOutline,
+        mdiFolderOpen,
+        mdiFolder,
+      },
+    }
+  },
+
     data: () => ({
       active: [],
       avatar: null,
       open: [],
       users: [],
       directories: [],
+      tablesNames : [],
+      tablesFetched :[],
+      reportsView: false,
+      dataLoaded : false,
     }),
 
     computed: {
@@ -155,7 +154,7 @@ import axios from 'axios'
       selected () {
         if (!this.active.length) return undefined
 
-        const id = this.active[0]
+        const name = this.active[0]
 
         return this.users.find(user => user.id === id)
       },
@@ -163,6 +162,7 @@ import axios from 'axios'
 
     watch: {
       selected: 'randomAvatar',
+      active :  'fetchReports',
     },
 
     methods: {
@@ -182,6 +182,7 @@ import axios from 'axios'
       },
 
 
+
       fetchDirectories(){
 
             axios.get('/api/alldirectories')
@@ -190,17 +191,39 @@ import axios from 'axios'
                 this.directories = response.data.directories
                /*  console.log(this.directories);
                 console.log(this.items); */
-
-
-
         })
 
+      },
+
+      fetchReports(){
+
+        this.dataLoaded = false
+
+       axios.get('/api/reportsnames', {
+            params: {
+            code: this.active[0]
+            }
+          })
+        .then((response) => {
+          console.log('fetchReports : ',response)
+          this.tablesNames = response.data.tables
+          if ( this.tablesNames.length != 0 ) {
+            console.log('le legnht : ',this.tablesNames);
+            this.dataLoaded = true
+          }
+
+          this.reportsView = true
+          })
+
+
       }
+
+
+
     },
 
    created() {
      this.fetchDirectories()
-
     }
   }
 </script>

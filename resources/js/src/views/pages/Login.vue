@@ -6,7 +6,7 @@
         <v-card-title class="d-flex align-center justify-center py-7">
           <router-link to="/" class="d-flex align-center">
             <v-img
-              :src="require('@/assets/images/logos/logo.svg').default"
+              :src="require('@/assets/images/logos/logo.png').default"
               max-height="30px"
               max-width="30px"
               alt="logo"
@@ -14,14 +14,14 @@
               class="me-3"
             ></v-img>
 
-            <h2 class="text-2xl font-weight-semibold">Materio</h2>
+            <h2 class="text-2xl font-weight-semibold">Boursorama</h2>
           </router-link>
         </v-card-title>
 
         <!-- title -->
         <v-card-text>
-          <p class="text-2xl font-weight-semibold text--primary mb-2">Welcome to Materio! 👋🏻</p>
-          <p class="mb-2">Please sign-in to your account and start the adventure</p>
+          <p class="text-2xl font-weight-semibold text--primary mb-2">BI business repository  👋🏻</p>
+          <p class="mb-2">Connectez-vous</p>
         </v-card-text>
 
         <!-- login form -->
@@ -31,7 +31,7 @@
               v-model="email"
               outlined
               label="Email"
-              placeholder="john@example.com"
+              placeholder="john@boursorama.fr"
               hide-details
               class="mb-3"
             ></v-text-field>
@@ -40,7 +40,7 @@
               v-model="password"
               outlined
               :type="isPasswordVisible ? 'text' : 'password'"
-              label="Password"
+              label="Mot de passe"
               placeholder="············"
               :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
               hide-details
@@ -48,36 +48,41 @@
             ></v-text-field>
 
             <div class="d-flex align-center justify-space-between flex-wrap">
-              <v-checkbox label="Remember Me" hide-details class="me-3 mt-1"> </v-checkbox>
+              <!-- <v-checkbox label="Remember Me" hide-details class="me-3 mt-1"> </v-checkbox> -->
 
               <!-- forgot link -->
-              <a href="javascript:void(0)" class="mt-1"> Forgot Password? </a>
+              <a href="javascript:void(0)" class="mt-1"> Mot de passe oublié? </a>
             </div>
 
-            <v-btn block color="primary" class="mt-6"> Login </v-btn>
+            <v-btn block color="primary" @click="login()" class="mt-6"> Se Connecter </v-btn>
+                        <v-alert
+              color="red"
+              dense
+              dismissible
+              elevation="10"
+              icon="$mdiAccount"
+              outlined
+              prominent
+              type="warning"
+              v-if="error.statut"
+            >
+            {{this.error.msg}}
+            </v-alert>
           </v-form>
         </v-card-text>
 
         <!-- create new account  -->
-        <v-card-text class="d-flex align-center justify-center flex-wrap mt-2">
-          <span class="me-2"> New on our platform? </span>
-          <router-link :to="{ name: 'pages-register' }"> Create an account </router-link>
+        <v-card-text class="d-flex align-center justify-center flex-wrap mt-2 mb">
+          <span class="me-2"> Nouveau? </span>
+          <router-link :to="{ name: 'pages-register' }"> Creer un compte </router-link>
         </v-card-text>
 
         <!-- divider -->
-        <v-card-text class="d-flex align-center mt-2">
-          <v-divider></v-divider>
-          <span class="mx-5">or</span>
-          <v-divider></v-divider>
-        </v-card-text>
+
 
         <!-- social links -->
-        <v-card-actions class="d-flex justify-center">
-          <v-btn v-for="link in socialLink" :key="link.icon" icon class="ms-1">
-            <v-icon :color="$vuetify.theme.dark ? link.colorInDark : link.color">
-              {{ link.icon }}
-            </v-icon>
-          </v-btn>
+        <v-card-actions class="d-flex justify-center mb-5">
+
         </v-card-actions>
       </v-card>
     </div>
@@ -104,8 +109,10 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import { mdiFacebook, mdiTwitter, mdiGithub, mdiGoogle, mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
+import { mdiFacebook, mdiTwitter, mdiGithub, mdiGoogle, mdiEyeOutline, mdiEyeOffOutline, mdiAccount } from '@mdi/js'
 import { ref } from '@vue/composition-api'
+import axios from 'axios'
+
 
 export default {
   setup() {
@@ -144,9 +151,41 @@ export default {
       icons: {
         mdiEyeOutline,
         mdiEyeOffOutline,
+        mdiAccount
       },
     }
   },
+  data(){
+    return{
+      password : '',
+      email: '',
+      error : {msg :'', statut :false},
+    }
+  },
+
+  methods :{
+    login(){
+      this.error.msg  = ''
+      this.error.statut = true
+
+       const data = {
+         email:this.email,
+         password :this.password
+    }
+       axios.post('/api/login',data)
+      .then((response)=>{
+          localStorage.removeItem('token')
+          localStorage.setItem('token', response.data.access_token);
+         this.$router.push('/dashboard')
+        })
+      .catch((error)=>{
+        console.log(error);
+          this.error.statut = true
+          this.error.msg = error.message
+      })
+
+    }
+  }
 }
 </script>
 

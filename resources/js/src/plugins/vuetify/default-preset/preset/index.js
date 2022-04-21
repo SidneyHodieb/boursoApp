@@ -5,9 +5,9 @@ export default {
   theme: {
     themes: {
       light: {
-        primary: '#9155FD',
+        primary: '#d50175',
         accent: '#0d6efd',
-        secondary: '#8A8D93',
+        secondary: '#009de0',
         success: '#56CA00',
         info: '#16B1FF',
         warning: '#FFB400',

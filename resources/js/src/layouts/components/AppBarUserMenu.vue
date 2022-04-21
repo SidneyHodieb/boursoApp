@@ -47,7 +47,7 @@
       </v-list-item>
 
       <!-- Chat -->
-      <v-list-item link>
+     <!--  <v-list-item link>
         <v-list-item-icon class="me-2">
           <v-icon size="22">
             {{ icons.mdiChatOutline }}
@@ -60,7 +60,7 @@
         <v-list-item-action>
           <v-badge inline color="error" content="2"> </v-badge>
         </v-list-item-action>
-      </v-list-item>
+      </v-list-item> -->
 
       <v-divider class="my-2"></v-divider>
 
@@ -72,12 +72,12 @@
           </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>Settings</v-list-item-title>
+          <v-list-item-title>Parametres</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
       <!-- Pricing -->
-      <v-list-item link>
+   <!--    <v-list-item link>
         <v-list-item-icon class="me-2">
           <v-icon size="22">
             {{ icons.mdiCurrencyUsd }}
@@ -86,7 +86,7 @@
         <v-list-item-content>
           <v-list-item-title>Pricing</v-list-item-title>
         </v-list-item-content>
-      </v-list-item>
+      </v-list-item> -->
 
       <!-- FAQ -->
       <v-list-item link>
@@ -103,14 +103,14 @@
       <v-divider class="my-2"></v-divider>
 
       <!-- Logout -->
-      <v-list-item link>
+      <v-list-item link @click="logout">
         <v-list-item-icon class="me-2">
           <v-icon size="22">
             {{ icons.mdiLogoutVariant }}
           </v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title>Logout</v-list-item-title>
+          <v-list-item-title>Déconnexion</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -118,6 +118,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import {
   mdiAccountOutline,
   mdiEmailOutline,
@@ -144,7 +145,42 @@ export default {
       },
     }
   },
+
+  data(){
+    return{
+      name : '',
+    }
+  },
+
+  methods:{
+
+     profile(){
+      let token = localStorage.getItem('token')
+        const config = {
+    header: { Authorization: `Bearer ${token}` }
+};
+
+      axios.post('/api/profile',config)
+      .then((response)=>{
+        console.log('Le profile :',response);
+      })
+    },
+
+      logout(){
+      axios.post('/api/logout')
+      .then((response)=>{
+        console.log('logout :',response);
+      })
+    }
+
+    }
+  ,
+
+  created(){
+    this.profile()
+  }
 }
+
 </script>
 
 <style lang="scss">
